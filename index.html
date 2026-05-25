@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroTab | Interactive Guitar Tab & Chord Creator</title>
+  <link rel="stylesheet" href="/src/style.css">
+</head>
+<body>
+
+  <!-- Hidden Print Chords Container (for PDF styling) -->
+  <div id="print-chords-container" class="print-chords-container"></div>
+
+  <div class="app-container">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">🎸</div>
+        <div class="logo-text">AeroTab</div>
+      </div>
+      
+      <div class="sidebar-content">
+        <!-- Songs List Sidebar -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 class="section-title" style="border: none; padding: 0; margin: 0;">My Tabs</h3>
+            <button id="btn-new-song" class="btn btn-icon" style="padding: 4px 8px;" title="Create new tab">+</button>
+          </div>
+          <div id="sidebar-song-list" class="song-list">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- YouTube Sync Section -->
+        <div class="youtube-sync-section" style="border-top: 1px solid var(--border-glass); padding-top: 16px; display: flex; flex-direction: column; gap: 8px;">
+          <h3 class="section-title" style="border: none; padding: 0; margin: 0;">YouTube Backing</h3>
+          <div style="display: flex; gap: 6px;">
+            <input type="text" id="youtube-url-input" class="form-input" style="flex: 1; font-size: 0.8rem; padding: 6px 10px;" placeholder="Paste YouTube link...">
+            <button id="btn-load-youtube" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.8rem;" title="Load YouTube backing track">Load</button>
+          </div>
+          <div id="youtube-player-container" class="youtube-player-container" style="display: none;">
+            <!-- Embedded iframe goes here -->
+          </div>
+        </div>
+
+        <!-- Chord Shapes Library Sidebar -->
+        <div class="chord-library-section">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 class="section-title" style="border: none; padding: 0; margin: 0;">Chord Library</h3>
+            <button id="btn-create-custom-chord" class="btn btn-primary" style="padding: 4px 8px; font-size: 0.75rem;">+ Build</button>
+          </div>
+          <div id="chord-library-list" class="chord-list">
+            <!-- Dynamically populated with SVG cards -->
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="main-content">
+      
+      <!-- TOP NAV -->
+      <header class="top-nav">
+        <div class="song-info">
+          <input type="text" id="song-title" class="song-title-input" value="Acoustic Riff" placeholder="Song Title" title="Click to rename song">
+          <span style="color: var(--border-glass);">|</span>
+          <input type="text" id="song-artist" class="song-meta-input" value="Guitarist" placeholder="Artist" title="Click to edit artist">
+          <span style="color: var(--border-glass);">|</span>
+          <div class="tempo-control" style="gap: 4px;">
+            <span style="font-size: 0.8rem; font-weight: 500;">Key:</span>
+            <input type="text" id="song-key" class="song-meta-input" style="width: 40px; text-align: center;" value="C" placeholder="Key" title="Click to change key">
+          </div>
+          <span style="color: var(--border-glass);">|</span>
+          <div class="tempo-control" style="gap: 4px;">
+            <span style="font-size: 0.8rem; font-weight: 500;">Tuning:</span>
+            <select id="tuning-select" class="song-meta-input" style="width: 110px; background: var(--bg-card); cursor: pointer; border: 1px solid var(--border-glass); border-radius: 6px; padding: 2px 4px;">
+              <option value="standard">Standard</option>
+              <option value="drop_d">Drop D</option>
+              <option value="dadgad">DADGAD</option>
+              <option value="open_g">Open G</option>
+              <option value="open_d">Open D</option>
+              <option value="half_down">Half Down</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="control-group">
+          <button id="btn-export-ascii" class="btn" title="Convert to standard text tab">Export ASCII</button>
+          <button id="btn-save-json" class="btn" title="Download project JSON file">Save File</button>
+          <button id="btn-load-json" class="btn" title="Import tab JSON project">Import File</button>
+          <input type="file" id="file-import-input" accept=".json" style="display: none;">
+          <button id="btn-print-pdf" class="btn btn-primary" title="Print sheet music or export PDF">Print PDF</button>
+        </div>
+      </header>
+
+      <!-- CANVAS BODY -->
+      <div class="workspace-canvas">
+        
+        <!-- Tab Meta Header (Used Chords list display) -->
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-muted);">Chords in this Song</h4>
+          <div id="song-chords-list" class="song-chords-panel">
+            <!-- Dynamically shows SVG cards of chords inserted in this song -->
+          </div>
+        </div>
+
+        <!-- Playback and Editing Controls -->
+        <div class="control-panel">
+          <div class="control-group">
+            <button id="btn-play-pause" class="btn btn-primary" style="padding: 10px 20px; font-weight: 600; width: 100px;" title="Play or pause playback">Play</button>
+            <button id="btn-stop" class="btn" style="padding: 10px;" title="Stop playback">Stop</button>
+            <div class="divider"></div>
+            <div class="tempo-control">
+              <span>Tempo:</span>
+              <input type="range" id="tempo-slider" class="tempo-slider" min="40" max="200" value="100">
+              <span id="tempo-value" class="tempo-val">100</span>
+              <span>BPM</span>
+            </div>
+            <div class="divider"></div>
+            <button id="btn-loop" class="btn" title="Toggle loop mode">Loop Off</button>
+          </div>
+
+          <div class="control-group">
+            <div class="tempo-control">
+              <span>Synth:</span>
+              <button id="btn-synth-toggle" class="btn btn-active" style="padding: 4px 10px; font-size: 0.8rem;">Acoustic</button>
+            </div>
+            <div class="divider"></div>
+            <button id="btn-insert-col" class="btn" title="Insert blank beat at cursor (Ctrl+I)">+ Beat</button>
+            <button id="btn-delete-col" class="btn btn-danger" title="Delete beat at cursor (Ctrl+D)">- Beat</button>
+            <button id="btn-append-measure" class="btn btn-active" title="Append 8 blank beats to end">+ Measure</button>
+          </div>
+        </div>
+
+        <!-- Tab Sheet Editor Card -->
+        <div class="tab-sheet-card">
+          <div class="tab-sheet-header">
+            <div class="tab-sheet-title">
+              <span>🎵 Guitar Tablature</span>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--color-text-muted);">
+              Use Arrow keys to move, Numbers to enter frets. Drag & drop chords or select to inspect. Press Space to play.
+            </div>
+          </div>
+          
+          <!-- Track Switcher Bar -->
+          <div class="track-switcher-bar" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px; margin-bottom: 4px;">
+            <div id="track-tabs-container" style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <!-- Dynamically populated tab buttons -->
+            </div>
+            <button id="btn-add-track" class="btn" style="padding: 4px 10px; font-size: 0.8rem; border-color: var(--accent-cyan); color: var(--accent-cyan);">+ Track</button>
+          </div>
+          
+          <div class="tab-editor-scroll-container">
+            <!-- Dynamic Flex-Wrapping Grid Editor Canvas -->
+            <div id="tab-grid-editor" class="tab-grid">
+              <!-- Javascript will render wrapped measure blocks here -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- MODALS OVERLAY SYSTEM -->
+  
+  <!-- 1. Custom Chord Builder Modal -->
+  <div id="custom-chord-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="font-size: 1.15rem;">Custom Chord Builder</h3>
+        <button id="btn-close-chord-builder" class="btn btn-icon" style="border: none; background: transparent; font-size: 1.2rem;">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="builder-layout">
+          <!-- Interactive Fretboard Designer -->
+          <div class="builder-fretboard-container">
+            <span class="form-label">Tap frets to place notes:</span>
+            
+            <!-- Open/Mute markers row -->
+            <div id="builder-status-row" class="builder-status-row">
+              <!-- Indicators dynamically placed -->
+            </div>
+            
+            <!-- Fretboard grid -->
+            <div id="builder-fretboard" class="builder-fretboard">
+              <!-- Generated with JS -->
+            </div>
+            
+            <div style="font-size: 0.75rem; color: var(--color-text-muted); text-align: center; margin-top: 8px;">
+              Labels: Click status box (X/O) to mute/open strings. Click fret cells to toggle fingered frets.
+            </div>
+          </div>
+          
+          <!-- Metadata and SVG Live Preview -->
+          <div style="display: flex; flex-direction: column; justify-content: space-between;">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label for="custom-chord-name" class="form-label">Chord Symbol Name:</label>
+                <input type="text" id="custom-chord-name" class="form-input" placeholder="e.g. Cmaj9" maxlength="10">
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label for="builder-tuning-select" class="form-label">Builder Tuning:</label>
+                <select id="builder-tuning-select" class="form-input" style="background: var(--bg-card); cursor: pointer;">
+                  <option value="standard">Standard (EADGBE)</option>
+                  <option value="drop_d">Drop D (DADGBE)</option>
+                  <option value="dadgad">DADGAD</option>
+                  <option value="open_g">Open G (DGDGBD)</option>
+                  <option value="open_d">Open D (DADF#AD)</option>
+                  <option value="half_down">Half Step Down</option>
+                  <option value="custom">Custom Tuning...</option>
+                </select>
+              </div>
+              <div id="builder-custom-tuning-container" style="display: none; flex-direction: column; gap: 6px; margin-bottom: 10px;">
+                <label class="form-label">Custom Notes (e to E):</label>
+                <div style="display: flex; gap: 4px; justify-content: space-between;">
+                  <select class="builder-custom-note" data-string="0" style="width: 40px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 6px; padding: 2px; font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-align-last: center; cursor: pointer;"></select>
+                  <select class="builder-custom-note" data-string="1" style="width: 40px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 6px; padding: 2px; font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-align-last: center; cursor: pointer;"></select>
+                  <select class="builder-custom-note" data-string="2" style="width: 40px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 6px; padding: 2px; font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-align-last: center; cursor: pointer;"></select>
+                  <select class="builder-custom-note" data-string="3" style="width: 40px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 6px; padding: 2px; font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-align-last: center; cursor: pointer;"></select>
+                  <select class="builder-custom-note" data-string="4" style="width: 40px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 6px; padding: 2px; font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-align-last: center; cursor: pointer;"></select>
+                  <select class="builder-custom-note" data-string="5" style="width: 40px; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 6px; padding: 2px; font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-align-last: center; cursor: pointer;"></select>
+                </div>
+              </div>
+            </div>
+            
+            <div class="builder-preview-container" style="margin-top: 10px;">
+              <span class="form-label" style="margin-bottom: 8px;">Live Preview</span>
+              <div id="builder-preview-svg" class="builder-preview-svg">
+                <!-- Renders preview -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="btn-save-custom-chord" class="btn btn-primary">Save to Library</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. ASCII Plaintext Export Modal -->
+  <div id="ascii-export-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3>Exported ASCII Tab</h3>
+        <button id="btn-close-ascii-modal" class="btn btn-icon" style="border: none; background: transparent; font-size: 1.2rem;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="ascii-export-text" class="ascii-textarea" readonly></textarea>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-copy-ascii" class="btn btn-primary">Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Chord Inspector / Enlarge Modal -->
+  <div id="chord-inspector-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 380px;">
+      <div class="modal-header">
+        <h3 id="inspector-chord-name" style="font-size: 1.2rem; font-weight: 700; text-align: center; width: 100%;">Chord Details</h3>
+        <button id="btn-close-inspector" class="btn btn-icon" style="border: none; background: transparent; font-size: 1.2rem;">&times;</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 24px;">
+        <div id="inspector-chord-svg" style="width: 180px; height: 220px; display: flex; align-items: center; justify-content: center;">
+          <!-- Renders large SVG -->
+        </div>
+        <div id="inspector-chord-info" style="font-size: 0.85rem; color: var(--color-text-muted); text-align: center; line-height: 1.4;">
+          <!-- Custom tuning string frets helper -->
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; gap: 16px;">
+        <button id="btn-inspector-insert" class="btn btn-primary" style="flex: 1;">Insert into Tab</button>
+        <button id="btn-inspector-delete" class="btn btn-danger" style="flex: 1; display: none;">Clear from Tab</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Add Track Modal -->
+  <div id="add-track-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem;">Add New Track</h3>
+        <button id="btn-close-add-track" class="btn btn-icon" style="border: none; background: transparent; font-size: 1.2rem;">&times;</button>
+      </div>
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="new-track-name" class="form-label">Track Name:</label>
+          <input type="text" id="new-track-name" class="form-input" placeholder="e.g. Guitar 2, Bass Line">
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="new-track-type" class="form-label">Instrument Type:</label>
+          <select id="new-track-type" class="form-input" style="background: var(--bg-card); cursor: pointer;">
+            <option value="guitar">Guitar (6 Strings)</option>
+            <option value="bass">Bass (4 Strings)</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="new-track-tuning" class="form-label">Initial Tuning Preset:</label>
+          <select id="new-track-tuning" class="form-input" style="background: var(--bg-card); cursor: pointer;">
+            <option value="standard">Standard</option>
+            <option value="drop_d">Drop D</option>
+            <option value="half_down">Half Step Down</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-close-add-track-cancel" class="btn">Cancel</button>
+        <button id="btn-create-track-confirm" class="btn btn-primary">Create Track</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

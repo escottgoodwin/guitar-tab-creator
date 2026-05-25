@@ -1,0 +1,1131 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  /* Harmonious Dark Mode HSL Color Palette */
+  --bg-main: hsl(230, 25%, 7%);
+  --bg-sidebar: hsl(230, 25%, 9%);
+  --bg-card: hsla(230, 25%, 12%, 0.6);
+  --bg-card-hover: hsla(230, 25%, 18%, 0.8);
+  --border-glass: hsla(230, 25%, 25%, 0.3);
+  --border-glass-focus: hsla(200, 100%, 50%, 0.5);
+  
+  --color-text-main: hsl(220, 20%, 90%);
+  --color-text-muted: hsl(220, 15%, 60%);
+  
+  /* Accent Colors */
+  --accent-cyan: hsl(185, 100%, 50%);
+  --accent-blue: hsl(210, 100%, 50%);
+  --accent-indigo: hsl(245, 100%, 65%);
+  --accent-emerald: hsl(150, 100%, 40%);
+  --accent-ruby: hsl(345, 100%, 55%);
+  
+  --gradient-accent: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  --gradient-neon: linear-gradient(135deg, var(--accent-cyan), var(--accent-indigo));
+  
+  /* Fonts */
+  --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  /* Layout constraints */
+  --sidebar-width: 320px;
+  --header-height: 70px;
+  --transition-speed: 0.2s;
+  
+  color-scheme: dark;
+}
+
+/* Global Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-main);
+  color: var(--color-text-main);
+  min-height: 100vh;
+  display: flex;
+  overflow: hidden;
+  line-height: 1.5;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(245, 100%, 65%, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(185, 100%, 50%, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, hsla(210, 100%, 50%, 0.05) 0px, transparent 50%);
+}
+
+/* Scrollbar customization */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-sidebar);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsla(230, 25%, 25%, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsla(230, 25%, 35%, 0.8);
+}
+
+/* Typography elements */
+h1, h2, h3, h4 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* App Layout Grid */
+.app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+/* Sidebar Styling (Glassmorphic) */
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-glass);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.sidebar-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--gradient-accent);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 1.25rem;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Main Workspace Area */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Top Navigation Bar */
+.top-nav {
+  height: var(--header-height);
+  border-bottom: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background-color: hsla(230, 25%, 7%, 0.5);
+  backdrop-filter: blur(12px);
+  z-index: 5;
+}
+
+.song-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.song-title-input {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-text-main);
+  font-family: var(--font-main);
+  font-size: 1.3rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all var(--transition-speed);
+  width: 240px;
+}
+
+.song-title-input:hover {
+  background: var(--bg-card);
+}
+
+.song-title-input:focus {
+  outline: none;
+  background: var(--bg-card);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+}
+
+.song-meta-input {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--color-text-muted);
+  font-family: var(--font-main);
+  font-size: 0.9rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  width: 150px;
+}
+
+.song-meta-input:hover {
+  background: var(--bg-card);
+}
+
+.song-meta-input:focus {
+  outline: none;
+  background: var(--bg-card);
+  border-color: var(--accent-cyan);
+}
+
+/* Workspace Canvas */
+.workspace-canvas {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Floating Actions Bar / Control Panel */
+.control-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(16px);
+  border-radius: 16px;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--border-glass);
+}
+
+/* Premium Buttons & Controls */
+.btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  color: var(--color-text-main);
+  font-family: var(--font-main);
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-speed);
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+.btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--color-text-muted);
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-primary {
+  background: var(--gradient-accent);
+  border: none;
+  color: hsl(230, 25%, 5%);
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, hsl(185, 100%, 55%), hsl(210, 100%, 55%));
+  box-shadow: 0 6px 20px rgba(0, 242, 254, 0.35);
+  border: none;
+  color: hsl(230, 25%, 5%);
+}
+
+.btn-icon {
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.btn-danger {
+  background: rgba(255, 30, 80, 0.15);
+  border-color: rgba(255, 30, 80, 0.3);
+  color: var(--accent-ruby);
+}
+
+.btn-danger:hover {
+  background: rgba(255, 30, 80, 0.25);
+  border-color: var(--accent-ruby);
+}
+
+.btn-active {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+}
+
+/* Playback tempo input & slider */
+.tempo-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.tempo-slider {
+  -webkit-appearance: none;
+  width: 100px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-glass);
+  outline: none;
+}
+
+.tempo-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--accent-cyan);
+  transition: transform 0.1s;
+}
+
+.tempo-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+}
+
+.tempo-val {
+  font-family: var(--font-mono);
+  color: var(--color-text-main);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Guitar Tab Sheet Block Container */
+.tab-sheet-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.tab-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tab-sheet-title {
+  font-size: 1.1rem;
+  color: var(--color-text-main);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Horizontal Scroll Tab Editor View */
+.tab-editor-scroll-container {
+  width: 100%;
+  padding-bottom: 12px;
+  position: relative;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+/* Guitar Tab Layout: Flex wrap measure blocks */
+.tab-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 16px;
+  padding: 16px;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  min-height: auto;
+}
+
+/* self-contained measure blocks that wrap */
+.measure-block {
+  display: grid;
+  grid-template-rows: 24px 24px 20px 20px 20px 20px 20px 20px; /* chords, lyrics, e, B, G, D, A, E */
+  grid-template-columns: 24px repeat(8, 36px) 10px; /* header, 8 beats, barline */
+  position: relative;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 12px 8px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Horizontal string lines within each measure block */
+.measure-block::before {
+  content: '';
+  position: absolute;
+  left: 32px;
+  right: 18px;
+  top: 70px; /* padding 12px + 24px + 24px + 10px half string height */
+  height: 100px; /* 5 intervals of 20px */
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 9px,
+    hsla(220, 15%, 60%, 0.18) 9px,
+    hsla(220, 15%, 60%, 0.18) 11px,
+    transparent 11px,
+    transparent 20px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.measure-header-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-weight: bold;
+  color: var(--accent-cyan);
+  font-size: 12px;
+  font-family: var(--font-mono);
+  user-select: none;
+}
+
+.measure-header-cell.string-header {
+  height: 20px;
+}
+
+.measure-barline {
+  border-right: 2px solid rgba(255, 255, 255, 0.35);
+  margin-left: 4px;
+  height: 100%;
+}
+
+/* Individual Grid Cells */
+.tab-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+  transition: background-color var(--transition-speed);
+  cursor: pointer;
+}
+
+.tab-cell.note-cell {
+  height: 20px;
+  color: var(--color-text-main);
+  font-weight: 500;
+}
+
+.tab-cell.note-cell::before {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: var(--bg-main);
+  border-radius: 3px;
+  z-index: -1;
+  display: none;
+}
+
+.tab-cell.note-cell.has-note::before {
+  display: block;
+}
+
+.tab-cell.chord-cell {
+  height: 24px;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.tab-cell.lyric-cell {
+  height: 24px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+/* Cell Focus / Playback States */
+.tab-cell.focused {
+  outline: 2px solid var(--accent-cyan);
+  border-radius: 4px;
+  background-color: rgba(0, 242, 254, 0.1);
+  z-index: 4;
+}
+
+.tab-cell.note-cell.focused::before {
+  background: transparent;
+}
+
+.tab-cell.drag-over {
+  background-color: rgba(0, 242, 254, 0.2);
+  outline: 2px dashed var(--accent-cyan);
+  border-radius: 4px;
+}
+
+.tab-column-highlight {
+  grid-row: 1 / -1;
+  background-color: transparent;
+  border-left: 1px dashed transparent;
+  border-right: 1px dashed transparent;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tab-column-highlight.playing {
+  background-color: hsla(150, 100%, 40%, 0.08);
+  border-left: 1px solid var(--accent-emerald);
+  border-right: 1px solid var(--accent-emerald);
+  box-shadow: 0 0 10px rgba(0, 255, 120, 0.1);
+}
+
+/* Chord Library Elements */
+.chord-library-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-glass);
+  padding-bottom: 8px;
+}
+
+.chord-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
+  gap: 10px;
+}
+
+.chord-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-speed);
+  position: relative;
+}
+
+.chord-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-cyan);
+  transform: translateY(-2px);
+}
+
+.chord-card.active-tab-chord {
+  border-color: var(--accent-indigo);
+  background: rgba(100, 100, 255, 0.05);
+}
+
+.chord-card-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.chord-card-diagram {
+  width: 55px;
+  height: 65px;
+}
+
+/* Predefined list of chords used in song (placed on main canvas) */
+.song-chords-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  padding: 16px;
+  border-radius: 12px;
+}
+
+/* Modals & Dialog overlays */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(6, 7, 14, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-card {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-glass);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 550px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: scale(0.9);
+  transition: transform 0.3s;
+}
+
+.modal-overlay.active .modal-card {
+  transform: scale(1);
+}
+
+.modal-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-glass);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.form-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  color: var(--color-text-main);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  transition: border-color var(--transition-speed);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 8px rgba(0,242,254,0.15);
+}
+
+/* Custom Chord Builder Grid Layout */
+.builder-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.builder-fretboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.builder-fretboard {
+  display: grid;
+  grid-template-columns: repeat(6, 28px); /* 6 frets: open, 1, 2, 3, 4, 5 */
+  grid-template-rows: repeat(6, 24px); /* 6 strings */
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.builder-fretboard::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  top: 10px;
+  bottom: 10px;
+  width: 140px; /* 5 frets * 28px */
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0px,
+    transparent 27px,
+    hsla(220, 15%, 60%, 0.3) 27px,
+    hsla(220, 15%, 60%, 0.3) 28px
+  );
+  pointer-events: none;
+}
+
+/* Vertical string lines for builder board */
+.builder-fretboard::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 22px;
+  height: 120px; /* 5 gaps * 24px */
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 11px,
+    hsla(220, 15%, 60%, 0.2) 11px,
+    hsla(220, 15%, 60%, 0.2) 13px,
+    transparent 13px,
+    transparent 24px
+  );
+  pointer-events: none;
+}
+
+.builder-cell {
+  width: 28px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  position: relative;
+}
+
+.builder-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px var(--accent-cyan);
+  display: none;
+}
+
+.builder-cell.active .builder-dot {
+  display: block;
+}
+
+/* Show open/mute status markers at top of builder */
+.builder-status-row {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  padding: 0 10px;
+}
+
+.builder-status-indicator {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+}
+
+.builder-status-indicator.muted {
+  color: var(--accent-ruby);
+  border-color: rgba(255, 30, 80, 0.3);
+}
+
+.builder-status-indicator.open {
+  color: var(--accent-emerald);
+  border-color: rgba(0, 255, 120, 0.3);
+}
+
+/* Chord preview in builder modal */
+.builder-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.builder-preview-svg {
+  width: 120px;
+  height: 150px;
+}
+
+/* File / Song Management Sidebar Listing */
+.song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.song-list-item {
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all var(--transition-speed);
+}
+
+.song-list-item:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-cyan);
+}
+
+.song-list-item.active {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 242, 254, 0.05);
+}
+
+.song-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.song-item-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.song-item-artist {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.song-item-actions {
+  opacity: 0;
+  transition: opacity var(--transition-speed);
+}
+
+.song-list-item:hover .song-item-actions {
+  opacity: 1;
+}
+
+/* ASCII export textarea panel */
+.ascii-textarea {
+  width: 100%;
+  height: 300px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border-glass);
+  color: var(--color-text-main);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  padding: 16px;
+  border-radius: 8px;
+  resize: none;
+  outline: none;
+}
+
+.ascii-textarea:focus {
+  border-color: var(--accent-cyan);
+}
+
+/* Chord Grid inside Header for PDF output */
+.print-chords-container {
+  display: none;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+/* Printing styles */
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+    overflow: visible;
+    background-image: none;
+  }
+  
+  .app-container {
+    height: auto;
+    width: auto;
+    display: block;
+  }
+  
+  .sidebar, .top-nav, .control-panel, .tab-sheet-header, .logo-icon, .btn, .divider, .track-switcher-bar {
+    display: none !important;
+  }
+  
+  .main-content {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+  
+  .workspace-canvas {
+    padding: 0;
+    display: block;
+  }
+  
+  .tab-sheet-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+  
+  .tab-editor-scroll-container {
+    background: transparent;
+    border: none;
+  }
+  
+  .tab-grid {
+    padding: 0;
+    gap: 20px 8px;
+  }
+  
+  .measure-block {
+    background: transparent !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+  
+  .measure-header-cell {
+    color: #000 !important;
+  }
+  
+  .measure-barline {
+    border-right: 2px solid #000 !important;
+  }
+  
+  .tab-cell {
+    color: #000 !important;
+  }
+  
+  .tab-cell.note-cell::before {
+    background: #fff !important;
+  }
+  
+  .tab-cell.chord-cell {
+    color: #000 !important;
+  }
+  
+  .tab-cell.focused {
+    outline: none !important;
+    background: transparent !important;
+  }
+  
+  /* Show chord diagram prints at the top of the page */
+  .print-chords-container {
+    display: flex !important;
+  }
+  
+  /* SVG colors for print */
+  svg text {
+    fill: #000 !important;
+  }
+  svg line, svg circle {
+    stroke: #000 !important;
+  }
+  svg circle.pressed-dot {
+    fill: #000 !important;
+  }
+}
+
+/* Chord Cards Enhancements: draggable and delete actions */
+.chord-card {
+  position: relative;
+  user-select: none;
+}
+
+.chord-card .chord-card-delete {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent-ruby);
+  color: #fff;
+  border: 1px solid var(--border-glass);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition-speed), transform var(--transition-speed);
+  z-index: 5;
+}
+
+.chord-card:hover .chord-card-delete {
+  opacity: 1;
+}
+
+.chord-card .chord-card-delete:hover {
+  transform: scale(1.15);
+  background: hsl(345, 100%, 65%);
+}
+
+/* Track Switcher & Tabs styling */
+.track-tab-btn {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-glass);
+  color: var(--color-text-muted);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--transition-speed);
+}
+
+.track-tab-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--color-text-main);
+  border-color: var(--color-text-muted);
+}
+
+.track-tab-btn.active {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+}
+
+.track-tab-delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent-ruby);
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 0.95rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity var(--transition-speed), transform var(--transition-speed);
+}
+
+.track-tab-delete-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Bass Track Layout Overrides */
+.measure-block.bass-track {
+  grid-template-rows: 24px 24px 20px 20px 20px 20px; /* chords, lyrics, and 4 bass string rows */
+}
+
+.measure-block.bass-track::before {
+  top: 70px;
+  height: 60px; /* 3 intervals of 20px for 4 strings */
+}
+
+/* YouTube Backing Player CSS */
+.youtube-player-container {
+  width: 100%;
+  height: 160px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border-glass);
+  background: #000;
+  position: relative;
+  margin-top: 8px;
+}
+
+.youtube-player-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
