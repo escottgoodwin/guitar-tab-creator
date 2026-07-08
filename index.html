@@ -181,14 +181,28 @@
           <div class="builder-fretboard-container">
             <span class="form-label">Tap frets to place notes:</span>
             
-            <!-- Open/Mute markers row -->
-            <div id="builder-status-row" class="builder-status-row">
-              <!-- Indicators dynamically placed -->
-            </div>
-            
-            <!-- Fretboard grid -->
-            <div id="builder-fretboard" class="builder-fretboard">
-              <!-- Generated with JS -->
+            <!-- Wrapper to align status row and grid -->
+            <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+              <!-- Row for status (includes spacer for fret labels column) -->
+              <div style="display: flex; gap: 8px; align-items: center; width: 100%; justify-content: center;">
+                <div style="width: 32px;"></div> <!-- Spacer matching fret label column -->
+                <div id="builder-status-row" class="builder-status-row" style="width: 188px; padding: 0 10px; margin: 0;">
+                  <!-- Indicators dynamically placed -->
+                </div>
+              </div>
+              
+              <!-- Row for fret labels + grid -->
+              <div style="display: flex; gap: 8px; align-items: flex-end; width: 100%; justify-content: center; margin-top: 6px;">
+                <!-- Fret labels column -->
+                <div id="builder-fret-labels" style="display: flex; flex-direction: column; justify-content: space-around; height: 120px; padding: 10px 0; font-family: var(--font-mono); font-size: 11px; font-weight: bold; color: var(--color-text-muted); text-align: right; width: 32px;">
+                  <!-- Dynamic fret numbers go here -->
+                </div>
+                
+                <!-- Fretboard grid -->
+                <div id="builder-fretboard" class="builder-fretboard" style="margin: 0; width: 188px;">
+                  <!-- Generated with JS -->
+                </div>
+              </div>
             </div>
             
             <div style="font-size: 0.75rem; color: var(--color-text-muted); text-align: center; margin-top: 8px;">
@@ -202,6 +216,26 @@
               <div class="form-group" style="margin-bottom: 10px;">
                 <label for="custom-chord-name" class="form-label">Chord Symbol Name:</label>
                 <input type="text" id="custom-chord-name" class="form-input" placeholder="e.g. Cmaj9" maxlength="10">
+              </div>
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label for="builder-base-fret" class="form-label">Starting Fret:</label>
+                <select id="builder-base-fret" class="form-input" style="background: var(--bg-card); cursor: pointer;">
+                  <option value="1">Fret 1</option>
+                  <option value="2">Fret 2</option>
+                  <option value="3">Fret 3</option>
+                  <option value="4">Fret 4</option>
+                  <option value="5">Fret 5</option>
+                  <option value="6">Fret 6</option>
+                  <option value="7">Fret 7</option>
+                  <option value="8">Fret 8</option>
+                  <option value="9">Fret 9</option>
+                  <option value="10">Fret 10</option>
+                  <option value="11">Fret 11</option>
+                  <option value="12">Fret 12</option>
+                  <option value="13">Fret 13</option>
+                  <option value="14">Fret 14</option>
+                  <option value="15">Fret 15</option>
+                </select>
               </div>
               <div class="form-group" style="margin-bottom: 10px;">
                 <label for="builder-tuning-select" class="form-label">Builder Tuning:</label>

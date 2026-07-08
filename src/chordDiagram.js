@@ -270,6 +270,7 @@ export function initChordUI(editorContext) {
   const builderStatusRow = document.getElementById('builder-status-row');
   const builderPreviewSvg = document.getElementById('builder-preview-svg');
   const builderTuningSelect = document.getElementById('builder-tuning-select');
+  const builderBaseFretSelect = document.getElementById('builder-base-fret');
   const builderCustomTuningContainer = document.getElementById('builder-custom-tuning-container');
   const builderCustomNoteSelects = document.querySelectorAll('.builder-custom-note');
   
@@ -292,8 +293,12 @@ export function initChordUI(editorContext) {
     fingers: [null, null, null, null, null, null],
     barre: null,
     tuningKey: 'standard',
-    customNotes: [...TUNING_PRESETS.standard]
+    customNotes: [...TUNING_PRESETS.standard],
+    baseFret: 1
   };
+
+  let isNameManuallyEdited = false;
+  let lastAutoName = '';
 
   // 1. Initialise Builder Custom Tuning Dropdown lists
   builderCustomNoteSelects.forEach((select, idx) => {
@@ -487,6 +492,8 @@ export function initChordUI(editorContext) {
   // 3. Custom Chord Builder Handlers
   if (btnCreateCustom) {
     btnCreateCustom.addEventListener('click', () => {
+      isNameManuallyEdited = false;
+      lastAutoName = '';
       const activeTuningPreset = editorContext.getTuningPresetName ? editorContext.getTuningPresetName() : 'standard';
       const tuningNotesList = editorContext.getTuningNames ? editorContext.getTuningNames() : [...TUNING_PRESETS.standard];
       
@@ -496,11 +503,15 @@ export function initChordUI(editorContext) {
         fingers: [null, null, null, null, null, null],
         barre: null,
         tuningKey: activeTuningPreset,
-        customNotes: [...tuningNotesList]
+        customNotes: [...tuningNotesList],
+        baseFret: 1
       };
       
       if (builderTuningSelect) {
         builderTuningSelect.value = activeTuningPreset;
+      }
+      if (builderBaseFretSelect) {
+        builderBaseFretSelect.value = '1';
       }
       if (inputCustomName) inputCustomName.value = '';
       
@@ -558,6 +569,14 @@ export function initChordUI(editorContext) {
       updateBuilderPreview();
     });
   }
+
+  if (builderBaseFretSelect) {
+    builderBaseFretSelect.addEventListener('change', (e) => {
+      builderState.baseFret = parseInt(e.target.value, 10) || 1;
+      drawBuilderGrid();
+      updateBuilderPreview();
+    });
+  }
   
   function drawBuilderGrid() {
     if (!builderFretboard || !builderStatusRow) return;
@@ -565,13 +584,34 @@ export function initChordUI(editorContext) {
     builderStatusRow.innerHTML = '';
     
     const tuningStrNotes = builderState.customNotes;
+    const baseFret = builderState.baseFret || 1;
+    
+    // Render dynamic fret labels in builder-fret-labels
+    const builderFretLabels = document.getElementById('builder-fret-labels');
+    if (builderFretLabels) {
+      builderFretLabels.innerHTML = '';
+      for (let f = 0; f < 5; f++) {
+        const label = document.createElement('div');
+        label.style.height = '24px';
+        label.style.display = 'flex';
+        label.style.alignItems = 'center';
+        label.style.justifyContent = 'flex-end';
+        label.innerText = `${baseFret + f} fr`;
+        builderFretLabels.appendChild(label);
+      }
+    }
     
     // Draw status indicators above builder grid
+    builderStatusRow.style.display = 'grid';
+    builderStatusRow.style.gridTemplateColumns = 'repeat(6, 28px)';
+    builderStatusRow.style.justifyItems = 'center';
+    
     for (let s = 0; s < 6; s++) {
       const indicator = document.createElement('div');
       indicator.className = 'builder-status-indicator';
       indicator.style.flexDirection = 'column';
       indicator.style.height = '34px';
+      indicator.style.width = '24px';
       
       const fretVal = builderState.frets[s];
       let displayChar = 'X';
@@ -607,12 +647,15 @@ export function initChordUI(editorContext) {
       builderStatusRow.appendChild(indicator);
     }
     
-    // Fret cells: 6 strings vertical, 5 frets horizontal (1 to 5)
-    for (let s = 0; s < 6; s++) {
-      for (let f = 1; f <= 5; f++) {
+    // Fret cells: 6 strings vertical (columns), 5 frets horizontal (rows)
+    // Outer loop: frets (f from 1 to 5)
+    // Inner loop: strings (s from 0 to 5)
+    for (let f = 1; f <= 5; f++) {
+      for (let s = 0; s < 6; s++) {
+        const absoluteFret = baseFret + f - 1;
         const cell = document.createElement('div');
         cell.className = 'builder-cell';
-        if (builderState.frets[s] === f) {
+        if (builderState.frets[s] === absoluteFret) {
           cell.classList.add('active');
         }
         
@@ -621,11 +664,11 @@ export function initChordUI(editorContext) {
         cell.appendChild(dot);
         
         cell.addEventListener('click', () => {
-          if (builderState.frets[s] === f) {
+          if (builderState.frets[s] === absoluteFret) {
             builderState.frets[s] = 0;
             builderState.fingers[s] = null;
           } else {
-            builderState.frets[s] = f;
+            builderState.frets[s] = absoluteFret;
             builderState.fingers[s] = Math.min(4, Math.max(1, f));
           }
           drawBuilderGrid();
@@ -639,7 +682,20 @@ export function initChordUI(editorContext) {
   
   function updateBuilderPreview() {
     if (!builderPreviewSvg) return;
-    const chordName = inputCustomName.value.trim() || 'Custom';
+
+    // Auto-detect chord name if not manually edited
+    if (!isNameManuallyEdited && inputCustomName) {
+      const detected = detectChordName(builderState.frets, builderState.customNotes);
+      if (detected) {
+        inputCustomName.value = detected;
+        lastAutoName = detected;
+      } else {
+        inputCustomName.value = '';
+        lastAutoName = '';
+      }
+    }
+
+    const chordName = inputCustomName ? (inputCustomName.value.trim() || 'Custom') : 'Custom';
     const tempChord = {
       name: chordName,
       frets: builderState.frets,
@@ -656,7 +712,13 @@ export function initChordUI(editorContext) {
   }
   
   if (inputCustomName) {
-    inputCustomName.addEventListener('input', updateBuilderPreview);
+    inputCustomName.addEventListener('input', () => {
+      const val = inputCustomName.value.trim();
+      if (val !== lastAutoName) {
+        isNameManuallyEdited = true;
+      }
+      updateBuilderPreview();
+    });
   }
   
   if (btnSaveCustom) {
@@ -685,4 +747,138 @@ export function initChordUI(editorContext) {
     getChord: (name) => chordLibrary.get(name),
     hasChord: (name) => chordLibrary.has(name)
   };
+}
+
+/**
+ * Automatically detects guitar chord names from selected frets and string tuning notes
+ * @param {Array} frets - Array of fret positions [high_E, B, G, D, A, E]
+ * @param {Array} tuningNotes - Array of string note names ['e', 'B', 'G', 'D', 'A', 'E']
+ * @returns {string} - Detected chord name
+ */
+export function detectChordName(frets, tuningNotes) {
+  const PITCH_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+  
+  function parseNote(noteStr) {
+    const norm = noteStr.trim().toUpperCase()
+      .replace('BB', 'A#')
+      .replace('EB', 'D#')
+      .replace('GB', 'F#')
+      .replace('DB', 'C#')
+      .replace('AB', 'G#')
+      .replace('B♭', 'A#')
+      .replace('E♭', 'D#')
+      .replace('A♭', 'G#')
+      .replace('D♭', 'C#')
+      .replace('G♭', 'F#');
+    const map = {
+      'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+      'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11
+    };
+    return map[norm] !== undefined ? map[norm] : null;
+  }
+
+  const played = [];
+  const stdOpenMidi = [64, 59, 55, 50, 45, 40];
+  const stdOpenPitch = [4, 11, 7, 2, 9, 4];
+  
+  for (let s = 0; s < 6; s++) {
+    const fret = frets[s];
+    if (fret !== -1 && fret !== null && fret !== undefined) {
+      const openName = tuningNotes[s];
+      const openPitch = parseNote(openName);
+      if (openPitch === null) continue;
+      
+      let diff = openPitch - stdOpenPitch[s];
+      diff = ((diff + 6) % 12 + 12) % 12 - 6; // normalize to [-6, 5]
+      
+      const customOpenMidi = stdOpenMidi[s] + diff;
+      const midi = customOpenMidi + fret;
+      const pitchClass = midi % 12;
+      played.push({ midi, pitchClass });
+    }
+  }
+  
+  if (played.length === 0) return '';
+  
+  const playedPitches = Array.from(new Set(played.map(n => n.pitchClass)));
+  let lowestMidi = Infinity;
+  let bassPitch = null;
+  played.forEach(n => {
+    if (n.midi < lowestMidi) {
+      lowestMidi = n.midi;
+      bassPitch = n.pitchClass;
+    }
+  });
+  
+  if (playedPitches.length === 1) {
+    return PITCH_NAMES[playedPitches[0]];
+  }
+  
+  const qualities = [
+    { name: '', intervals: [0, 4, 7], weight: 5 },          // Major
+    { name: 'm', intervals: [0, 3, 7], weight: 5 },         // Minor
+    { name: '7', intervals: [0, 4, 7, 10], weight: 4 },      // 7
+    { name: 'maj7', intervals: [0, 4, 7, 11], weight: 4 },   // maj7
+    { name: 'm7', intervals: [0, 3, 7, 10], weight: 4 },     // m7
+    { name: 'sus4', intervals: [0, 5, 7], weight: 3 },       // sus4
+    { name: 'sus2', intervals: [0, 2, 7], weight: 3 },       // sus2
+    { name: '5', intervals: [0, 7], weight: 3 },             // 5
+    { name: 'add9', intervals: [0, 2, 4, 7], weight: 2 },    // add9
+    { name: '9', intervals: [0, 2, 4, 7, 10], weight: 2 },   // 9
+    { name: 'maj9', intervals: [0, 2, 4, 7, 11], weight: 2 }, // maj9
+    { name: 'm9', intervals: [0, 2, 3, 7, 10], weight: 2 },  // m9
+    { name: '6', intervals: [0, 4, 7, 9], weight: 2 },       // 6
+    { name: 'm6', intervals: [0, 3, 7, 9], weight: 2 },      // m6
+    { name: 'dim', intervals: [0, 3, 6], weight: 1 },        // dim
+    { name: 'dim7', intervals: [0, 3, 6, 9], weight: 1 },    // dim7
+    { name: 'm7b5', intervals: [0, 3, 6, 10], weight: 1 },   // m7b5
+    { name: 'aug', intervals: [0, 4, 8], weight: 1 }         // aug
+  ];
+  
+  let bestMatch = null;
+  let highestScore = -1;
+  
+  for (let root = 0; root < 12; root++) {
+    const relIntervals = playedPitches.map(p => (p - root + 12) % 12);
+    
+    qualities.forEach(q => {
+      const isSubset = relIntervals.every(interval => q.intervals.includes(interval));
+      if (!isSubset) return;
+      if (!relIntervals.includes(0)) return;
+      
+      let score = 0;
+      const hasFifth = relIntervals.includes(7);
+      const qHasFifth = q.intervals.includes(7);
+      
+      if (relIntervals.length === q.intervals.length) {
+        score = 100;
+      } else if (qHasFifth && !hasFifth && relIntervals.length === q.intervals.length - 1) {
+        score = 90; // omitted 5th
+      } else {
+        score = 50 * (relIntervals.length / q.intervals.length);
+      }
+      
+      if (root === bassPitch) {
+        score += 15;
+      }
+      score += q.weight;
+      
+      if (score > highestScore) {
+        highestScore = score;
+        bestMatch = { root, quality: q.name };
+      }
+    });
+  }
+  
+  if (!bestMatch) return '';
+  
+  const rootName = PITCH_NAMES[bestMatch.root];
+  const chordQualityName = bestMatch.quality;
+  
+  if (bassPitch !== null && bassPitch !== bestMatch.root) {
+    const bassName = PITCH_NAMES[bassPitch];
+    return `${rootName}${chordQualityName}/${bassName}`;
+  }
+  
+  return `${rootName}${chordQualityName}`;
 }
